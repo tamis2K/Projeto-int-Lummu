@@ -15,6 +15,7 @@
 #define RELE_PIN   5    //D1   
 
 bool myPowerState = false;
+bool liggado = false;
 unsigned long lastBtnPress = 0;
 
 
@@ -26,13 +27,14 @@ bool onPowerState(const String &deviceId, bool &state) {
 }
 
 void handleButtonPress() {
-  unsigned long actualMillis = millis(); // get actual millis() and keep it in variable actualMillis
-  if (digitalRead(BUTTON_PIN) == LOW && actualMillis - lastBtnPress > 1000)  { // is button pressed (inverted logic! button pressed = LOW) and debounced?
+  if ((digitalRead(BUTTON_PIN) == LOW) and (liggado == false))  { // is button pressed (inverted logic! button pressed = LOW) and debounced?
     if (myPowerState) {     // flip myPowerState: if it was true, set it to false, vice versa
       myPowerState = false;
     } else {
       myPowerState = true;
+      liggado = true;
     }
+    
     digitalWrite(RELE_PIN, myPowerState?LOW:HIGH); // if myPowerState indicates device turned on: turn on led (builtin led uses inverted logic: LOW = LED ON / HIGH = LED OFF)
 
     // get Switch device back
@@ -40,9 +42,22 @@ void handleButtonPress() {
     // send powerstate event
     mySwitch.sendPowerStateEvent(myPowerState); // send the new powerState to SinricPro server
     Serial.printf("Device %s turned %s (manually via flashbutton)\r\n", mySwitch.getDeviceId().c_str(), myPowerState?"on":"off");
+  } else if ((digitalRead(BUTTON_PIN) == HIGH) and (liggado == true)) {
+    if (myPowerState) {     // flip myPowerState: if it was true, set it to false, vice versa
+      myPowerState = false;
+    } else {
+      myPowerState = true;
+      liggado = false;
+    }
+    
+    digitalWrite(RELE_PIN, myPowerState?LOW:HIGH); // if myPowerState indicates device turned on: turn on led (builtin led uses inverted logic: LOW = LED ON / HIGH = LED OFF)
 
-    lastBtnPress = actualMillis;  // update last button press variable
-  } 
+    // get Switch device back
+    SinricProSwitch& mySwitch = SinricPro[SWITCH_ID];
+    // send powerstate event
+    mySwitch.sendPowerStateEvent(myPowerState); // send the new powerState to SinricPro server
+    Serial.printf("Device %s turned %s (manually via flashbutton)\r\n", mySwitch.getDeviceId().c_str(), myPowerState?"on":"off");  
+  }
 }
 
 // setup function for WiFi connection
