@@ -31,9 +31,10 @@ void handleButtonPress() {
     if (myPowerState) {     // flip myPowerState: if it was true, set it to false, vice versa
       myPowerState = false;
     } else {
-      myPowerState = true;
-      liggado = true;
+      myPowerState = true;      
     }
+
+    liggado = true;
     
     digitalWrite(RELE_PIN, myPowerState?LOW:HIGH); // if myPowerState indicates device turned on: turn on led (builtin led uses inverted logic: LOW = LED ON / HIGH = LED OFF)
 
@@ -47,8 +48,9 @@ void handleButtonPress() {
       myPowerState = false;
     } else {
       myPowerState = true;
-      liggado = false;
     }
+
+    liggado = false;
     
     digitalWrite(RELE_PIN, myPowerState?LOW:HIGH); // if myPowerState indicates device turned on: turn on led (builtin led uses inverted logic: LOW = LED ON / HIGH = LED OFF)
 
